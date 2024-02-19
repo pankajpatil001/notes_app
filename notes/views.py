@@ -34,9 +34,9 @@ def signup(request):
             - Both the passwords do not match
         - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than POST
     """
-    serializer = NeofiUserSignupSerializer(data=request.data)
+    serializer = NeofiUserSignupSerializer(data=request.data) # create the serializer with incoming data
     if serializer.is_valid():
-        serializer.save()
+        serializer.save() # save the user once it is validated
         return Response({'message': 'User signup successful.'}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -61,16 +61,14 @@ def login(request):
             - Any of the above parameters is missing
         - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than POST
     """
-    serializer = NeofiUserLoginSerializer(data=request.data)
+    serializer = NeofiUserLoginSerializer(data=request.data) # create the serializer with incoming data
     print('Serializer:', serializer)
     if serializer.is_valid():
         email = serializer.data.get('email')
         password = serializer.data.get('password')
-        user = authenticate(email=email, password=password)
-        print(email, password, user)
-        if user is not None:
-            token, created = Token.objects.get_or_create(user=user)
-            print('login successful')
+        user = authenticate(email=email, password=password) # authenticate the user with given credentials
+        if user is not None: 
+            token, created = Token.objects.get_or_create(user=user) # create a token if the user is authenticated
             return Response({'message': 'User login successful.', 'user': {'email': user.email, 'username': user.username}, 'token': token.key}, status=status.HTTP_200_OK)
         return Response({'message': 'User login failed', 'errors': 'Email or Password is not valid.'}, status=status.HTTP_401_UNAUTHORIZED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -103,14 +101,13 @@ def create_notes(request):
             - Authentication token is not provided
         - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than POST
     """
-    serializer = NoteSerializer(data=request.data)
-    if not serializer.is_valid():
+    serializer = NoteSerializer(data=request.data) # create the serializer with incoming data
+    if not serializer.is_valid(): # return 400 if incoming data is not valid
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    serializer.save(owner=request.user)
-    # print(serializer.data, serializer.data.get('id'))
+    serializer.save(owner=request.user) # save the note if data is valid
     note_id = serializer.data.get('id')
-    NoteShare.objects.create(note_id=note_id, user=request.user)
-    NoteEdit.objects.create(note_id=note_id, edited_by=request.user, previous_content='', edited_content=serializer.data.get('content'))
+    NoteShare.objects.create(note_id=note_id, user=request.user) # create a note share object with the given note and user
+    NoteEdit.objects.create(note_id=note_id, edited_by=request.user, previous_content='', edited_content=serializer.data.get('content')) # create a note edit object with given note and other details
     return Response({'message': 'Note creation successful.', 'note_id': note_id, 'owner': {'email': request.user.email, 'username': request.user.username}}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
@@ -143,31 +140,29 @@ def share_note(request):
 
         - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than POST
     """
-    print('note share request by', request.user, request.method, request.data)
     note_id = request.data.get('note_id')
     user_ids = request.data.get('user_ids')
-    print('user:', user_ids, 'note:', note_id)
-    if not note_id or not isinstance(user_ids, list) or not user_ids:
+    if not note_id or not isinstance(user_ids, list) or not user_ids: # if note_id or user_ids are not valid, return 400 with the error message
         return Response({'message': 'Note id and list of User ids are needed for sharing a note'}, status=status.HTTP_400_BAD_REQUEST)
     try:
-        note = Note.objects.get(id=note_id, owner=request.user)    
+        note = Note.objects.get(id=note_id, owner=request.user) # save the note with the logged in user
     except Note.DoesNotExist:
         return Response({'message': 'You are not authorized to share this note.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     print('Note:', note)
     user_notes = []
     non_existent_users = []
-    for user_id in user_ids:
+    for user_id in user_ids: # share the note with all ids mentioned in user_ids list
         try:
             user = NeofiUser.objects.get(id=user_id)
-            if not NoteShare.objects.filter(note_id=note_id, user=user).exists():
+            if not NoteShare.objects.filter(note_id=note_id, user=user).exists(): # to avoid duplicacy of note share object
                 user_notes.append(NoteShare(note_id=note_id, user=user))
         except NeofiUser.DoesNotExist:
             non_existent_users.append(str(user_id))
     
-    if not non_existent_users:
+    if not non_existent_users: # create all note share objects only if all users in the user_ids list are valid
         NoteShare.objects.bulk_create(user_notes)
-    else:
+    else: # else give the list of invalid user ids
         return Response({'message': f'Users do not exist for user id(s): {", ".join(non_existent_users)}'}, status=status.HTTP_404_NOT_FOUND)
     return Response({'message': 'Note share successful.'}, status=status.HTTP_200_OK)
 
@@ -201,7 +196,7 @@ def note_version_history(request, id):
             
         - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than GET
     """
-    shared_notes = NoteShare.objects.filter(note_id=id, user=request.user)
+    shared_notes = NoteShare.objects.filter(note_id=id, user=request.user) # check if the note is shared with the logged in user
     if not shared_notes.exists():
         return Response({'message': 'You are not authorized to view the version history for this note.'}, status=status.HTTP_401_UNAUTHORIZED)
     
@@ -210,7 +205,7 @@ def note_version_history(request, id):
     except Note.DoesNotExist:
         return Response({'message': 'Note does not exist.'}, status=status.HTTP_404_NOT_FOUND)
     
-    note_versions = NoteEdit.objects.filter(note=note)
+    note_versions = NoteEdit.objects.filter(note=note) # get the version history for the note
     serializer = NoteEditSerializer(note_versions, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -291,7 +286,7 @@ class NoteRetriveUpdate(APIView):
         shared_notes = NoteShare.objects.filter(note_id=id, user=request.user)
         print('Shared notes:', shared_notes)
         
-        if shared_notes.exists():
+        if shared_notes.exists(): # check if the note is shared with the logged in user
             serializer = NoteSerializer(note)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({'message': 'You are not authorized to view the note.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -305,28 +300,28 @@ class NoteRetriveUpdate(APIView):
         shared_notes = NoteShare.objects.filter(note_id=id, user=request.user)
         print('Shared notes:', shared_notes)
         
-        if not shared_notes.exists():
+        if not shared_notes.exists(): # check if the note is shared with the logged in user
             return Response({'message': 'You are not authorized to edit the note.'}, status=status.HTTP_401_UNAUTHORIZED)
         
         serializer = NoteSerializer(note, data=request.data)
-        if not serializer.is_valid():
+        if not serializer.is_valid(): # check if the note is valid
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         edited_note = request.data.get('content', '')
         previous_content = note.content
         
-        if not edited_note.startswith(previous_content):
+        if not edited_note.startswith(previous_content): # existing note content cannot be edited, but only appended
             return Response({'message': 'Note update failed.', 'error': 'You can only add the new lines after the existing lines.'}, status=status.HTTP_403_FORBIDDEN)
         
         note.content = edited_note
-        note.save()
+        note.save() # save the note with the change
         context = {
             'note': note.id,
             'previous_content': previous_content,
             'edited_content': edited_note,
             'edited_by': request.user.id
             }
-        note_edit_serializer = NoteEditSerializer(data=context)
+        note_edit_serializer = NoteEditSerializer(data=context) # create an entry for version history
         if not note_edit_serializer.is_valid():
             return Response({'message': 'Note update successful but saving note versions history failed.', 'error': 'Failed to save note version history.'}, status=status.HTTP_206_PARTIAL_CONTENT)
         print('saving note edit')
