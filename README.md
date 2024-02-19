@@ -81,7 +81,8 @@ This document provides comprehensive documentation for the Neofi Notes App API e
 
 ### Base URL
 
-The base URL for all API endpoints is: https://notesapp-production-5400.up.railway.app/
+The base URL for all API endpoints is:
+https://notesapp-production-5400.up.railway.app/
 
 ### Authentication
 
@@ -91,190 +92,320 @@ All endpoints require authentication using Token-based authentication. You need 
 
 1. Create a User Account
 
-    POST /api/signup/
+### Endpoint
 
-2. Description
+POST /signup/
+
+### Description
+
 Create a new user account.
 
-Request Body
-username (string): The username for the new user.
-email (string): The email address for the new user.
-password (string): The password for the new user.
-Example
-json
-Copy code
+### Request Body
+
+- username (string): The username for the new user.
+- email (string): The email address for the new user.
+- password (string): The password for the new user.
+- confirm_password (string): The same password repeated again.
+
+### Example
+
+```json
 {
   "username": "testuser",
   "email": "test@example.com",
-  "password": "password123"
+  "password": "password123",
+  "confirm_password": "password123"
 }
-Response
-Status Code: 201 CREATED
-Response Body: None
-2. User Login
-Endpoint
-bash
-Copy code
-POST /api/login/
-Description
-Authenticate a user and get an authentication token.
+```
 
-Request Body
-email (string): The email address of the user.
-password (string): The password of the user.
-Example
-json
-Copy code
+### Response
+
+- Status Code: 201 CREATED
+
+### Response Body
+
+```json
+{
+    "message": "User signup successful."
+}
+```
+
+2. User Login
+
+### Endpoint
+
+POST /login/
+
+### Description
+
+Authenticate a user and get the authentication token.
+
+### Request Body
+
+- email (string): The email address for the user.
+- password (string): The password for the user.
+
+### Example
+
+```json
 {
   "email": "test@example.com",
   "password": "password123"
 }
-Response
-Status Code: 200 OK
-Response Body:
-json
-Copy code
-{
-  "token": "<your_authentication_token_here>"
-}
-3. Create a Note
-Endpoint
-bash
-Copy code
-POST /api/notes/create/
-Description
-Create a new note.
+```
 
-Request Body
-content (string): The content of the note.
-Example
-json
-Copy code
+### Response
+
+- Status Code: 200 OK
+
+### Response Body:
+
+```json
 {
-  "content": "This is a new note."
+    "message": "User login successful.",
+    "user": {
+        "email": "test@example.com",
+        "username": "password123"
+    },
+    "token": "fdf2ab85e6a55aae3b395bac4d435d69fcdd89e3"
 }
-Response
-Status Code: 201 CREATED
-Response Body:
-json
-Copy code
+```
+
+3. Create a Note
+
+### Endpoint
+
+POST /notes/create/
+
+### Description
+
+Create a new note
+
+### Request Body
+
+- content (string): The content of the note.
+
+### Example
+
+```json
 {
-  "id": 1,
-  "content": "This is a new note.",
-  "created_at": "2024-02-15T12:00:00Z",
-  "updated_at": "2024-02-15T12:00:00Z"
+  "content": "This is a sample note."
 }
+```
+
+### Response
+
+- Status Code: 201 CREATED
+
+### Response Body:
+
+```json
+{
+    "message": "Note creation successful.",
+    "note_id": 3,
+    "owner": {
+        "email": "test@example.com",
+        "username": "password123"
+    }
+}
+```
+
 4. Retrieve a Note
-Endpoint
-bash
-Copy code
-GET /api/notes/{note_id}/
-Description
+
+### Endpoint
+
+GET /notes/{note-id}/
+
+### Description
+
 Retrieve details of a specific note by its ID.
 
-Parameters
-note_id (integer): The ID of the note to retrieve.
-Example
-bash
-Copy code
-GET /api/notes/1/
-Response
-Status Code: 200 OK
-Response Body:
-json
-Copy code
+### Parameters
+
+- note-id (integer): The ID of the note to retrieve.
+
+### Example
+
+```bash
+GET /notes/3/
+```
+
+### Response
+
+- Status Code: 200 OK
+
+### Response Body:
+
+```json
 {
-  "id": 1,
-  "content": "This is a new note.",
-  "created_at": "2024-02-15T12:00:00Z",
-  "updated_at": "2024-02-15T12:00:00Z"
+    "id": 3,
+    "content": "This is a sample note.",
+    "created_at": "2024-02-19T19:13:57.630430Z",
+    "updated_at": "2024-02-19T19:13:57.630460Z"
 }
+```
+
 5. Share a Note
-Endpoint
-bash
-Copy code
-POST /api/notes/share/
-Description
+
+### Endpoint
+
+POST /notes/share/
+
+### Description
+
 Share a note with other users.
 
-Request Body
-note_id (integer): The ID of the note to share.
-user_ids (array of integers): The IDs of the users to share the note with.
-Example
-json
-Copy code
+### Request Body
+
+- note_id (integer): The ID of the note to share.
+- user_ids (array of integers): The IDs of the users to share the note with.
+
+### Example
+
+```json
 {
-  "note_id": 1,
-  "user_ids": [2, 3]
+  "note_id": 3,
+  "user_ids": [1, 2]
 }
-Response
-Status Code: 201 CREATED
-Response Body: None
+```
+
+### Response
+
+- Status Code: 200 OK
+
+### Response Body:
+
+```json
+{
+    "message": "Note share successful."
+}
+```
+
 6. Update a Note
-Endpoint
-bash
-Copy code
-PUT /api/notes/{note_id}/
-Description
+
+### Endpoint
+
+PUT /notes/{note-id}/
+
+### Description
+
 Update the content of a note.
 
-Parameters
-note_id (integer): The ID of the note to update.
-Request Body
-content (string): The updated content of the note.
-Example
-json
-Copy code
+### Parameters
+
+- note-id (integer): The ID of the note to update.
+
+### Request Body
+
+- content (string): The updated content of the note.
+
+### Example
+
+```json
 {
-  "content": "This is the updated content of the note."
+  "content": "This is a sample note. Written by Pankaj Patil."
 }
-Response
-Status Code: 200 OK
-Response Body:
-json
-Copy code
+```
+
+### Response
+
+- Status Code: 200 OK
+
+### Response Body:
+
+```json
 {
-  "id": 1,
-  "content": "This is the updated content of the note.",
-  "created_at": "2024-02-15T12:00:00Z",
-  "updated_at": "2024-02-15T12:05:00Z"
+    "message": "Note update successful.",
+    "data": {
+        "id": 3,
+        "content": "This is a sample note. Written by Pankaj Patil.",
+        "created_at": "2024-02-19T19:13:57.630430Z",
+        "updated_at": "2024-02-19T19:24:56.668865Z"
+    }
 }
+```
+
 7. Get Note Version History
-Endpoint
-bash
-Copy code
-GET /api/notes/version-history/{note_id}/
-Description
+
+### Endpoint
+
+GET /notes/version-history/{note-id}/
+
+### Description
+
 Retrieve the version history of a note.
 
-Parameters
-note_id (integer): The ID of the note to get the version history for.
-Example
-bash
-Copy code
-GET /api/notes/version-history/1/
-Response
-Status Code: 200 OK
-Response Body:
-json
-Copy code
+### Parameters
+
+- note-id (integer): The ID of the note to retrieve version history.
+
+### Request Body
+
+- content (string): The updated content of the note.
+
+### Example
+
+```bash
+GET /notes/version-history/3/
+```
+
+### Response
+
+- Status Code: 200 OK
+
+### Response Body:
+
+```json
 [
-  {
-    "id": 1,
-    "note": 1,
-    "previous_content": "This is the previous content.",
-    "edited_content": "This is the updated content.",
-    "edited_by": 2,
-    "edit_timestamp": "2024-02-15T12:05:00Z"
-  },
-  {
-    "id": 2,
-    "note": 1,
-    "previous_content": "This is the updated content.",
-    "edited_content": "This is the latest content.",
-    "edited_by": 2,
-    "edit_timestamp": "2024-02-15T12:10:00Z"
-  }
+    {
+        "note": 3,
+        "previous_content": "",
+        "edited_content": "This is a sample note.",
+        "edited_by": 4,
+        "edit_timestamp": "2024-02-19T19:13:57.689300Z"
+    },
+    {
+        "note": 3,
+        "previous_content": "This is a sample note.",
+        "edited_content": "This is a sample note. Written by Pankaj Patil.",
+        "edited_by": 4,
+        "edit_timestamp": "2024-02-19T19:24:56.698648Z"
+    }
 ]
-Conclusion
+```
+
+8. Delete a note
+
+### Endpoint
+
+Delete /notes/{note-id}/
+
+### Description
+
+Delete a note and related items like note shares and note history.
+
+### Parameters
+
+- note-id (integer): The ID of the note to delete.
+
+### Example
+
+```bash
+DELETE /notes/3/
+```
+
+### Response
+
+- Status Code: 204 NO CONTENT
+
+### Response Body:
+
+```json
+{
+    "message": "Note deleted."
+}
+```
+
+## Conclusion
+
 This document provides a detailed overview of the Neofi Notes App API endpoints along with usage examples.

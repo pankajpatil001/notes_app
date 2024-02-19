@@ -353,6 +353,7 @@ class NoteRetriveUpdate(APIView):
                 - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than DELETE
         """
         try:
+            print('Received a request to delete note with id:', id)
             note = Note.objects.get(id=id)
 
         except Note.DoesNotExist:
@@ -367,5 +368,5 @@ class NoteRetriveUpdate(APIView):
         note.delete()
         NoteShare.objects.filter(note_id=id).delete()
         NoteEdit.objects.filter(note_id=id).delete()
-        
+        print('Delete the note and other items')
         return Response({'message': 'Note deleted'}, status=status.HTTP_204_NO_CONTENT)
