@@ -1,0 +1,1 @@
+web: gunicorn neofi_notes.wsgi --log-file -
