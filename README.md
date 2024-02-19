@@ -15,19 +15,31 @@ To run the Neofi Notes App locally, follow these steps:
 
 1. Clone the repository:
 
+    ```bash
     git clone <https://github.com/patilect/notes_app.git>
+    ```
 
 2. Navigate to the project directory:
+
+    ```bash
     cd neofi_notes
+    ```
 
 3. Install dependencies
+
+    ```bash
     pip install -r requirements.txt
+    ```
 
 4. Apply migrations
+
+    ```bash
     python manage.py makemigrations
     python manage.py migrate
 
 5. Run the development server:
+
+    ```bash
     python manage.py runserver
 
 6. Access the application at <http://localhost:8000>
@@ -35,20 +47,31 @@ To run the Neofi Notes App locally, follow these steps:
 ## Testing
 
 The project includes unit tests for the API endpoints. To run the tests, use the following command:
-python manage.py test
+
+```bash
+    python manage.py test
+```
 
 ## Usage
 
 ## API Endpoints
 
 POST /signup: Create a new user account.
+
 POST /login: Log in to an existing user account.
+
 POST /notes/create/: Create a new note.
+
 GET /notes/{id}: Retrieve a specific note by its ID.
+
 DELETe /notes/{id}: Delete a specific note by its ID.
+
 POST /notes/share/: Share a note with other users.
+
 PUT /notes/{id}/: Update an existing note.
+
 GET /notes/version-history/{id}: Get all the changes associated with a note.
+
 
 # API Documentation and Usage Examples
 
@@ -67,8 +90,10 @@ All endpoints require authentication using Token-based authentication. You need 
 ## Endpoints
 
 1. Create a User Account
+
     POST /api/signup/
-Description
+
+2. Description
 Create a new user account.
 
 Request Body
