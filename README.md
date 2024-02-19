@@ -16,13 +16,13 @@ To run the Neofi Notes App locally, follow these steps:
 1. Clone the repository:
 
     ```bash
-    git clone <https://github.com/patilect/notes_app.git>
+    git clone https://github.com/patilect/notes_app.git
     ```
 
 2. Navigate to the project directory:
 
     ```bash
-    cd neofi_notes
+    cd notes_app
     ```
 
 3. Install dependencies
@@ -90,24 +90,24 @@ All endpoints require authentication using Token-based authentication. You need 
 
 ## Endpoints
 
-1. Create a User Account
+### Create a User Account
 
-### Endpoint
+#### Endpoint
 
 POST /signup/
 
-### Description
+#### Description
 
 Create a new user account.
 
-### Request Body
+#### Request Body
 
 - username (string): The username for the new user.
 - email (string): The email address for the new user.
 - password (string): The password for the new user.
 - confirm_password (string): The same password repeated again.
 
-### Example
+#### Example
 
 ```json
 {
@@ -118,11 +118,11 @@ Create a new user account.
 }
 ```
 
-### Response
+#### Response
 
 - Status Code: 201 CREATED
 
-### Response Body
+#### Response Body
 
 ```json
 {
@@ -130,22 +130,22 @@ Create a new user account.
 }
 ```
 
-2. User Login
+### User Login
 
-### Endpoint
+#### Endpoint
 
 POST /login/
 
-### Description
+#### Description
 
 Authenticate a user and get the authentication token.
 
-### Request Body
+#### Request Body
 
 - email (string): The email address for the user.
 - password (string): The password for the user.
 
-### Example
+#### Example
 
 ```json
 {
@@ -154,11 +154,11 @@ Authenticate a user and get the authentication token.
 }
 ```
 
-### Response
+#### Response
 
 - Status Code: 200 OK
 
-### Response Body:
+#### Response Body:
 
 ```json
 {
@@ -171,21 +171,21 @@ Authenticate a user and get the authentication token.
 }
 ```
 
-3. Create a Note
+### Create a Note
 
-### Endpoint
+#### Endpoint
 
 POST /notes/create/
 
-### Description
+#### Description
 
 Create a new note
 
-### Request Body
+#### Request Body
 
 - content (string): The content of the note.
 
-### Example
+#### Example
 
 ```json
 {
@@ -193,11 +193,11 @@ Create a new note
 }
 ```
 
-### Response
+#### Response
 
 - Status Code: 201 CREATED
 
-### Response Body:
+#### Response Body:
 
 ```json
 {
@@ -210,31 +210,31 @@ Create a new note
 }
 ```
 
-4. Retrieve a Note
+### Retrieve a Note
 
-### Endpoint
+#### Endpoint
 
 GET /notes/{note-id}/
 
-### Description
+#### Description
 
 Retrieve details of a specific note by its ID.
 
-### Parameters
+#### Parameters
 
 - note-id (integer): The ID of the note to retrieve.
 
-### Example
+#### Example
 
 ```bash
 GET /notes/3/
 ```
 
-### Response
+#### Response
 
 - Status Code: 200 OK
 
-### Response Body:
+#### Response Body:
 
 ```json
 {
@@ -245,22 +245,22 @@ GET /notes/3/
 }
 ```
 
-5. Share a Note
+### Share a Note
 
-### Endpoint
+#### Endpoint
 
 POST /notes/share/
 
-### Description
+#### Description
 
 Share a note with other users.
 
-### Request Body
+#### Request Body
 
 - note_id (integer): The ID of the note to share.
 - user_ids (array of integers): The IDs of the users to share the note with.
 
-### Example
+#### Example
 
 ```json
 {
@@ -269,11 +269,11 @@ Share a note with other users.
 }
 ```
 
-### Response
+#### Response
 
 - Status Code: 200 OK
 
-### Response Body:
+#### Response Body:
 
 ```json
 {
@@ -281,25 +281,25 @@ Share a note with other users.
 }
 ```
 
-6. Update a Note
+### Update a Note
 
-### Endpoint
+#### Endpoint
 
 PUT /notes/{note-id}/
 
-### Description
+#### Description
 
 Update the content of a note.
 
-### Parameters
+#### Parameters
 
 - note-id (integer): The ID of the note to update.
 
-### Request Body
+#### Request Body
 
 - content (string): The updated content of the note.
 
-### Example
+#### Example
 
 ```json
 {
@@ -307,11 +307,11 @@ Update the content of a note.
 }
 ```
 
-### Response
+#### Response
 
 - Status Code: 200 OK
 
-### Response Body:
+#### Response Body:
 
 ```json
 {
@@ -325,35 +325,35 @@ Update the content of a note.
 }
 ```
 
-7. Get Note Version History
+### Get Note Version History
 
-### Endpoint
+#### Endpoint
 
 GET /notes/version-history/{note-id}/
 
-### Description
+#### Description
 
 Retrieve the version history of a note.
 
-### Parameters
+#### Parameters
 
 - note-id (integer): The ID of the note to retrieve version history.
 
-### Request Body
+#### Request Body
 
 - content (string): The updated content of the note.
 
-### Example
+#### Example
 
 ```bash
 GET /notes/version-history/3/
 ```
 
-### Response
+#### Response
 
 - Status Code: 200 OK
 
-### Response Body:
+#### Response Body:
 
 ```json
 [
@@ -374,31 +374,31 @@ GET /notes/version-history/3/
 ]
 ```
 
-8. Delete a note
+### Delete a note
 
-### Endpoint
+#### Endpoint
 
 Delete /notes/{note-id}/
 
-### Description
+#### Description
 
 Delete a note and related items like note shares and note history.
 
-### Parameters
+#### Parameters
 
 - note-id (integer): The ID of the note to delete.
 
-### Example
+#### Example
 
 ```bash
 DELETE /notes/3/
 ```
 
-### Response
+#### Response
 
 - Status Code: 204 NO CONTENT
 
-### Response Body:
+#### Response Body:
 
 ```json
 {
