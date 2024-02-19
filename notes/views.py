@@ -2,10 +2,9 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
 from notes.models import NeofiUser, Note, NoteEdit, NoteShare
 from rest_framework.authtoken.models import Token
 from notes.serializers import NeofiUserSignupSerializer, NeofiUserLoginSerializer, NoteSerializer, NoteEditSerializer #, NoteShareSerializer
@@ -211,80 +210,46 @@ def note_version_history(request, id):
 
 class NoteRetriveUpdate(APIView):
     """
-    Retrieve and update a note (by authenticated user).
-
-    For retrieving a note:
-        Method: GET
-        URL: /notes/{note-id}/
-
-        Required HTTP Headers:
-            - Authorization: Token 91a2daac859262cc4560b2706b2579ddc44bc79e
-
-        Required parameters in url:
-            - note-id: id of the note for getting the content of the note
-
-        Returns:
-            - Response with status code 200 OK and:
-                - id: id of the note,
-                - content: current content of the note,
-                - created_at: timestamp when the note was created,
-                - updated_at: timestamp when the note was updated
-
-            - Response with status code 404 NOT FOUND if:
-                - the note with given id does not exist
-
-            - Response with status code 401 UNAUTHORIZED if:
-                - Authentication token is not provided
-                - The authenticated user is either not the owner of the note or the note is not shared with this user
-                
-            - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than GET
-
-    For updating a note:
-        Method: PUT
-        URL: /notes/{note-id}/
-
-        Required HTTP Headers:
-            - Authorization: Token 91a2daac859262cc4560b2706b2579ddc44bc79e
-
-        Required parameters in url:
-            - note-id: id of the note for updating the content of the note
-
-        Required parameters in request.data:
-            - content: additional lines in the note (after existing lines)
-
-        Returns:
-            - Response with status code 200 OK and success message if the updation is successful:
-                - id: id of the note updated,
-                - content: current content of the note,
-                - created_at: timestamp when the note was created,
-                - updated_at: timestamp when the note was updated
-
-            - Response with status code 400 BAD REQUEST if:
-                - the content is not a string
-
-            - Response with status code 403 FORBIDDEN if:
-                - the content is not an extension to the previous note (only new lines can be added, existing ones cannot be edited or removed.)
-
-            - Response with status code 404 NOT FOUND if:
-                - the note with given id does not exist
-
-            - Response with status code 401 UNAUTHORIZED if:
-                - Authentication token is not provided
-                - The authenticated user is either not the owner of the note or the note is not shared with this user
-                
-            - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than GET
+    Retrieve, update and delete a note (by authenticated user).
     """
+    
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id):
+        """
+            For retrieving a note:
+            Method: GET
+            URL: /notes/{note-id}/
+
+            Required HTTP Headers:
+                - Authorization: Token 91a2daac859262cc4560b2706b2579ddc44bc79e
+
+            Required parameters in url:
+                - note-id: id of the note for getting the content of the note
+
+            Returns:
+                - Response with status code 200 OK and:
+                    - id: id of the note,
+                    - content: current content of the note,
+                    - created_at: timestamp when the note was created,
+                    - updated_at: timestamp when the note was updated
+
+                - Response with status code 404 NOT FOUND if:
+                    - the note with given id does not exist
+
+                - Response with status code 401 UNAUTHORIZED if:
+                    - Authentication token is not provided
+                    - The authenticated user is either not the owner of the note or the note is not shared with this user
+                    
+                - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than GET
+        """
         try:
             note = Note.objects.get(id=id)
         except Note.DoesNotExist:
             return Response({'message': 'Note does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         
         shared_notes = NoteShare.objects.filter(note_id=id, user=request.user)
-        print('Shared notes:', shared_notes)
         
         if shared_notes.exists(): # check if the note is shared with the logged in user
             serializer = NoteSerializer(note)
@@ -292,13 +257,48 @@ class NoteRetriveUpdate(APIView):
         return Response({'message': 'You are not authorized to view the note.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     def put(self, request, id):
+        """
+            For updating a note:
+            Method: PUT
+            URL: /notes/{note-id}/
+
+            Required HTTP Headers:
+                - Authorization: Token 91a2daac859262cc4560b2706b2579ddc44bc79e
+
+            Required parameters in url:
+                - note-id: id of the note for updating the content of the note
+
+            Required parameters in request.data:
+                - content: additional lines in the note (after existing lines)
+
+            Returns:
+                - Response with status code 200 OK and success message if the updation is successful:
+                    - id: id of the note updated,
+                    - content: current content of the note,
+                    - created_at: timestamp when the note was created,
+                    - updated_at: timestamp when the note was updated
+
+                - Response with status code 400 BAD REQUEST if:
+                    - the content is not a string
+
+                - Response with status code 403 FORBIDDEN if:
+                    - the content is not an extension to the previous note (only new lines can be added, existing ones cannot be edited or removed.)
+
+                - Response with status code 404 NOT FOUND if:
+                    - the note with given id does not exist
+
+                - Response with status code 401 UNAUTHORIZED if:
+                    - Authentication token is not provided
+                    - The authenticated user is either not the owner of the note or the note is not shared with this user
+                    
+                - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than GET
+        """
         try:
             note = Note.objects.get(id=id)
         except Note.DoesNotExist:
             return Response({'message': f"Note does not exist."}, status=status.HTTP_404_NOT_FOUND)
         
         shared_notes = NoteShare.objects.filter(note_id=id, user=request.user)
-        print('Shared notes:', shared_notes)
         
         if not shared_notes.exists(): # check if the note is shared with the logged in user
             return Response({'message': 'You are not authorized to edit the note.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -324,8 +324,48 @@ class NoteRetriveUpdate(APIView):
         note_edit_serializer = NoteEditSerializer(data=context) # create an entry for version history
         if not note_edit_serializer.is_valid():
             return Response({'message': 'Note update successful but saving note versions history failed.', 'error': 'Failed to save note version history.'}, status=status.HTTP_206_PARTIAL_CONTENT)
-        print('saving note edit')
+
         note_edit_serializer.save()
         return Response({'message': 'Note update successful.', 'data': serializer.data}, status=status.HTTP_200_OK)
     
-    
+    def delete(self, request, id):
+        """
+            For deleting a note:
+            Method: DELETE
+            URL: /notes/{note-id}/
+
+            Required HTTP Headers:
+                - Authorization: Token 91a2daac859262cc4560b2706b2579ddc44bc79e
+
+            Required parameters in url:
+                - note-id: id of the note to be deleted
+
+            Returns:
+                - Response with status code 204 NO CONTENT if the deletion is successful
+
+                - Response with status code 404 NOT FOUND if:
+                    - the note with given id does not exist
+
+                - Response with status code 401 UNAUTHORIZED if:
+                    - Authentication token is not provided
+                    - The authenticated user is either not the owner of the note or the note is not shared with this user
+
+                - Response with status code 405 METHOD NOT ALLOWED if the request is made with any method other than DELETE
+        """
+        try:
+            note = Note.objects.get(id=id)
+
+        except Note.DoesNotExist:
+            return Response({'message': f"Note does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        
+        shared_notes = NoteShare.objects.filter(note_id=id, user=request.user)
+        
+        if not shared_notes.exists(): # check if the note is shared with the logged in user
+            return Response({'message': 'You are not authorized to delete the note.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Delete note and related items
+        note.delete()
+        NoteShare.objects.filter(note_id=id).delete()
+        NoteEdit.objects.filter(note_id=id).delete()
+        
+        return Response({'message': 'Note deleted'}, status=status.HTTP_204_NO_CONTENT)

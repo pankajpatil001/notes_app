@@ -20,8 +20,14 @@ class NoteAPITests(APITestCase):
         NoteShare.objects.create(note=note, user=self.user)
         url = reverse('note', kwargs={'id': note.id})
         response = self.client.get(url)
-        print('response', response.status_code, response)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)    
+
+    def test_note_delete(self):
+        note = Note.objects.create(owner=self.user, content='This is a test note.')
+        NoteShare.objects.create(note=note, user=self.user)
+        url = reverse('note', kwargs={'id': note.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_note_share(self):
         note = Note.objects.create(owner=self.user, content='This is a test note.')
