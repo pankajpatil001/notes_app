@@ -1,6 +1,6 @@
-# Neofi Notes App
+# Notes App
 
-Neofi Notes App is a simple Django Rest Framework based application for taking and sharing notes. It provides RESTful APIs for basic CRUD operations on notes, user authentication, and note sharing functionality.
+Notes App is a simple Django Rest Framework based application for taking and sharing notes. It provides RESTful APIs for basic CRUD operations on notes, user authentication, and note sharing functionality.
 
 ## Features
 
@@ -11,12 +11,12 @@ Neofi Notes App is a simple Django Rest Framework based application for taking a
 
 ## Installation
 
-To run the Neofi Notes App locally, follow these steps:
+To run the Notes App locally, follow these steps:
 
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/patilect/notes_app.git
+    https://github.com/pankajpatil001/notes_app.git
     ```
 
 2. Navigate to the project directory:
@@ -77,7 +77,7 @@ GET /notes/version-history/{id}: Get all the changes associated with a note.
 
 ## Introduction
 
-This document provides comprehensive documentation for the Neofi Notes App API endpoints along with usage examples.
+This document provides comprehensive documentation for the Notes App API endpoints along with usage examples.
 
 ### Base URL
 
@@ -408,4 +408,4 @@ DELETE /notes/3/
 
 ## Conclusion
 
-This document provides a detailed overview of the Neofi Notes App API endpoints along with usage examples.
+This document provides a detailed overview of the Notes App API endpoints along with usage examples.
